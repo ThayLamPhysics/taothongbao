@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Công Cụ Tạo Thông Báo & Nhận Xét Thông Minh</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .tab-btn.active {
+            border-color: #3B82F6;
+            color: #3B82F6;
+            background-color: #EFF6FF;
+        }
+        .dark .tab-btn.active {
+            border-color: #60A5FA;
+            color: #60A5FA;
+            background-color: #1F2937;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #6366F1;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        #customAlert {
+            transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+            transform: translateX(calc(100% + 20px));
+            opacity: 0;
+        }
+        #customAlert.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+
+    <div class="container mx-auto p-4 sm:p-6 md:p-8 max-w-3xl">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 sm:p-8">
+            
+            <div class="text-center mb-8">
+                <h1 class="text-2xl sm:text-3xl font-bold text-blue-600 dark:text-blue-400">Công Cụ Tạo Thông Báo & Nhận Xét</h1>
+                <p class="text-gray-600 dark:text-gray-400 mt-2">Chọn loại văn bản và điền thông tin để tạo nhanh chóng.</p>
+            </div>
+
+            <div class="border-b border-gray-200 dark:border-gray-700 mb-6">
+                <nav class="-mb-px flex space-x-1 sm:space-x-4 overflow-x-auto" aria-label="Tabs">
+                    <button id="tabBtnLecture" class="tab-btn active whitespace-nowrap py-3 px-2 sm:px-4 border-b-2 font-medium text-sm">
+                        Thông báo bài giảng
+                    </button>
+                    <button id="tabBtnHomework" class="tab-btn whitespace-nowrap py-3 px-2 sm:px-4 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300">
+                        Nhắc nhở bài tập
+                    </button>
+                    <button id="tabBtnFeedback" class="tab-btn whitespace-nowrap py-3 px-2 sm:px-4 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300">
+                        Nhận xét buổi học
+                    </button>
+                    <button id="tabBtnUpdate" class="tab-btn whitespace-nowrap py-3 px-2 sm:px-4 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300">
+                        Update bài giảng
+                    </button>
+                    <button id="tabBtnCheckHw" class="tab-btn whitespace-nowrap py-3 px-2 sm:px-4 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300">
+                        Check bài tập
+                    </button>
+                </nav>
+            </div>
+
+            <!-- Tab Content: Lecture Announcement -->
+            <div id="tabContentLecture" class="tab-content active fade-in">
+                <div class="space-y-6">
+                    <div>
+                        <label for="classInput" class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Lớp học</label>
+                        <select id="classInput" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
+                            <option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="subjectInput" class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Môn học</label>
+                        <select id="subjectInput" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
+                            <option value="vật lí">Vật lí</option><option value="hóa học">Hóa học</option><option value="sinh học" selected>Sinh học</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="lessonInput" class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Tên bài học</label>
+                        <input type="text" id="lessonInput" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" value="KHÁI QUÁT VỀ CƠ THỂ NGƯỜI" required>
+                    </div>
+                    <div>
+                        <label for="linkInput" class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Link bài giảng</label>
+                        <input type="url" id="linkInput" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" value="https://thaylamphysics.github.io/bio8-20250725/" required>
+                    </div>
+                </div>
+                <div class="mt-8 text-center">
+                    <button id="generateBtnLecture" class="w-full sm:w-auto text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-6 py-3 text-center dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-800 transition-transform transform hover:scale-105">Tạo thông báo bài giảng</button>
+                </div>
+            </div>
+
+            <!-- Tab Content: Homework Reminder -->
+            <div id="tabContentHomework" class="tab-content fade-in">
+                <div class="space-y-6">
+                    <div>
+                        <label for="hwSubjectInput" class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Môn học</label>
+                        <select id="hwSubjectInput" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
+                            <option value="vật lí">Vật lí</option><option value="hóa học" selected>Hóa học</option><option value="sinh học">Sinh học</option><option value="3 phân môn">3 phân môn</option>
+                        </select>
+                    </div>
+                    <div id="singleSubjectDetails">
+                        <label for="hwQuestionsInput" class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Số câu bài tập</label>
+                        <input type="number" id="hwQuestionsInput" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" value="20" required>
+                    </div>
+                    <div id="multiSubjectDetails" class="space-y-4" style="display: none;">
+                        <div>
+                            <label for="hwPhysicsInput" class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Nội dung bài tập Lý</label>
+                            <textarea id="hwPhysicsInput" rows="2" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" placeholder="VD: Hoàn thành 15 câu trắc nghiệm chương 1"></textarea>
+                        </div>
+                        <div>
+                            <label for="hwChemistryInput" class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Nội dung bài tập Hóa</label>
+                            <textarea id="hwChemistryInput" rows="2" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" placeholder="VD: Làm 5 bài tập tự luận về chuỗi phản ứng"></textarea>
+                        </div>
+                        <div>
+                            <label for="hwBiologyInput" class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Nội dung bài tập Sinh</label>
+                            <textarea id="hwBiologyInput" rows="2" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" placeholder="VD: Vẽ sơ đồ tư duy bài 2"></textarea>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="hwDeadlineInput" class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Hạn nộp</label>
+                        <input type="date" id="hwDeadlineInput" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" required>
+                    </div>
+                    <div>
+                        <label for="hwLinkInput" class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Link bài tập về nhà</label>
+                        <input type="url" id="hwLinkInput" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" value="https://thaylamphysics.github.io/hwchem8-20250804/" required>
+                    </div>
+                    <div>
+                        <label for="hwNoteInput" class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Lưu ý quan trọng</label>
+                        <textarea id="hwNoteInput" rows="3" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">những câu tính toán các bạn cần phải trình bày ra vở để chấm và chúng mình làm bài ghi đầy đủ họ tên và chữ cái đầu viết hoa nha!!!</textarea>
+                    </div>
+                </div>
+                <div class="mt-8 text-center">
+                    <button id="generateBtnHomework" class="w-full sm:w-auto text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-6 py-3 text-center dark:bg-green-500 dark:hover:bg-green-600 dark:focus:ring-green-800 transition-transform transform hover:scale-105">Tạo thông báo bài tập</button>
+                </div>
+            </div>
+
+            <!-- Tab Content: Session Feedback (REBUILT) -->
+            <div id="tabContentFeedback" class="tab-content fade-in">
+                <div class="space-y-6">
+                    <!-- Step 1: Basic Info -->
+                    <div id="fb-step1">
+                        <h3 class="text-lg font-semibold mb-2 text-gray-800 dark:text-gray-200">Bước 1: Thông tin cơ bản</h3>
+                        <div class="space-y-4">
+                            <!-- Gemini API Key input field is now hidden -->
+                            <div style="display: none;">
+                                <label for="geminiApiKey" class="block mb-2 text-sm font-medium">Gemini API Key</label>
+                                <input type="password" id="geminiApiKey" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600" placeholder="Dán API Key của bạn vào đây" required>
+                            </div>
+                            <div>
+                                <label for="fbSubject" class="block mb-2 text-sm font-medium">Môn học</label>
+                                <input type="text" id="fbSubject" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5" value="Hóa" required>
+                            </div>
+                            <div>
+                                <label for="fbLesson" class="block mb-2 text-sm font-medium">Tên bài học</label>
+                                <input type="text" id="fbLesson" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5" value="Cân bằng phương trình" required>
+                            </div>
+                            <div>
+                                <label for="fbSheetLink" class="block mb-2 text-sm font-medium">Link Google Sheet (bảng điểm)</label>
+                                <input type="url" id="fbSheetLink" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5" placeholder="Dán link file điểm của buổi học" required>
+                            </div>
+                            <div class="text-right">
+                                <button id="btnLoadSheetData" class="text-white bg-blue-600 hover:bg-blue-700 font-medium rounded-lg text-sm px-5 py-2.5 inline-flex items-center">
+                                    <span id="loadBtnText">Tải thông tin Sheet</span>
+                                    <div id="loadLoader" class="loader ml-2" style="display: none;"></div>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Step 2: Select Sheet and Columns -->
+                    <div id="fb-step2" class="hidden space-y-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                        <h3 class="text-lg font-semibold mb-2 text-gray-800 dark:text-gray-200">Bước 2: Chọn dữ liệu phân tích</h3>
+                        <div>
+                            <label for="fbSheetSelect" class="block mb-2 text-sm font-medium">Chọn Sheet chứa điểm</label>
+                            <select id="fbSheetSelect" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"></select>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div>
+                                <label for="fbNameColumnSelect" class="block mb-2 text-sm font-medium">Cột Tên học sinh</label>
+                                <select id="fbNameColumnSelect" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"></select>
+                            </div>
+                            <div>
+                                <label for="fbScoreColumnSelect" class="block mb-2 text-sm font-medium">Cột Số câu đúng</label>
+                                <select id="fbScoreColumnSelect" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"></select>
+                            </div>
+                            <div>
+                                <label for="fbTotalQuestionsColumnSelect" class="block mb-2 text-sm font-medium">Cột Tổng số câu</label>
+                                <select id="fbTotalQuestionsColumnSelect" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"></select>
+                            </div>
+                        </div>
+                        <div class="flex items-center mt-4">
+                            <input type="checkbox" id="fbUseAI" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                            <label for="fbUseAI" class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">Sử dụng AI để nhận xét chi tiết hơn</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-8 text-center">
+                    <button id="generateBtnFeedback" class="w-full sm:w-auto text-white bg-purple-600 hover:bg-purple-700 font-medium rounded-lg text-sm px-6 py-3 text-center inline-flex items-center disabled:bg-gray-400" disabled>
+                        <span id="feedbackBtnText">Phân tích và tạo nhận xét</span>
+                        <div id="feedbackLoader" class="loader ml-3" style="display: none;"></div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tab Content: Update Lecture -->
+            <div id="tabContentUpdate" class="tab-content fade-in">
+                <div class="space-y-6">
+                    <div>
+                        <label for="updateClass" class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Lớp</label>
+                        <select id="updateClass" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
+                            <option value="8">Lớp 8</option>
+                            <option value="9">Lớp 9</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="updateSubject" class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Môn học</label>
+                        <select id="updateSubject" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
+                            <option value="VẬT LÍ">VẬT LÍ</option>
+                            <option value="HÓA HỌC">HÓA HỌC</option>
+                            <option value="SINH HỌC">SINH HỌC</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="updateContent" class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Nội dung bài giảng</label>
+                        <textarea id="updateContent" rows="3" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" placeholder="VD: Cân bằng phương trình và bảo toàn khối lượng" required></textarea>
+                    </div>
+                    <div>
+                        <label for="updateDate" class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Ngày học</label>
+                        <input type="date" id="updateDate" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" required>
+                    </div>
+                    <div>
+                        <label for="updateLectureLink" class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Link bài giảng</label>
+                        <input type="url" id="updateLectureLink" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" required>
+                    </div>
+                    <div>
+                        <label for="updateVideoLink" class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Link video bài giảng (Tùy chọn)</label>
+                        <input type="url" id="updateVideoLink" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
+                    </div>
+                    <div>
+                        <label for="updateHomeworkLink" class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Link bài tập về nhà (Tùy chọn)</label>
+                        <input type="url" id="updateHomeworkLink" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
+                    </div>
+                </div>
+                <div class="mt-8 text-center">
+                    <button id="btnUpdateLecture" class="w-full sm:w-auto text-white bg-teal-600 hover:bg-teal-700 focus:ring-4 focus:outline-none focus:ring-teal-300 font-medium rounded-lg text-sm px-6 py-3 text-center dark:bg-teal-500 dark:hover:bg-teal-600 dark:focus:ring-teal-800 transition-transform transform hover:scale-105 inline-flex items-center disabled:bg-gray-400">
+                        <span id="updateBtnText">Up bài giảng</span>
+                        <div id="updateLoader" class="loader ml-3" style="display: none;"></div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tab Content: Check Homework -->
+            <div id="tabContentCheckHw" class="tab-content fade-in">
+                <div class="space-y-6">
+                    <div>
+                        <label for="checkHwClassSelect" class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Chọn lớp để kiểm tra</label>
+                        <select id="checkHwClassSelect" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" disabled>
+                            <option>Đang tải danh sách lớp...</option>
+                        </select>
+                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Danh sách được tự động cập nhật từ file dữ liệu của bạn.</p>
+                    </div>
+                    <div>
+                        <label for="checkHwScoreSheet" class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Link Sheet Điểm BTVN</label>
+                        <input type="url" id="checkHwScoreSheet" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" placeholder="Dán link sheet chứa danh sách đã nộp bài" required>
+                    </div>
+                </div>
+                <div class="mt-8 text-center">
+                    <button id="btnCheckHw" class="w-full sm:w-auto text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-4 focus:outline-none focus:ring-indigo-300 font-medium rounded-lg text-sm px-6 py-3 text-center dark:bg-indigo-500 dark:hover:bg-indigo-600 dark:focus:ring-indigo-800 transition-transform transform hover:scale-105 inline-flex items-center disabled:bg-gray-400">
+                        <span id="checkHwBtnText">Kiểm tra</span>
+                        <div id="checkHwLoader" class="loader ml-3" style="display: none;"></div>
+                    </button>
+                </div>
+            </div>
+
+
+            <!-- Result Section (Shared by all tabs) -->
+            <div id="resultContainer" class="mt-10" style="display: none;">
+                <div id="output"></div>
+                <div id="copyMessage" class="mt-2 text-center text-green-600 dark:text-green-400 font-medium" style="display: none;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Alert/Toast Notification -->
+    <div id="customAlert" class="fixed bottom-4 right-4 bg-blue-600 text-white px-6 py-3 rounded-lg shadow-xl flex items-center space-x-3 z-50">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <span id="customAlertMessage"></span>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- Tab Handling ---
+        const tabs = [
+            { btn: document.getElementById('tabBtnLecture'), content: document.getElementById('tabContentLecture') },
+            { btn: document.getElementById('tabBtnHomework'), content: document.getElementById('tabContentHomework') },
+            { btn: document.getElementById('tabBtnFeedback'), content: document.getElementById('tabContentFeedback') },
+            { btn: document.getElementById('tabBtnUpdate'), content: document.getElementById('tabContentUpdate') },
+            { btn: document.getElementById('tabBtnCheckHw'), content: document.getElementById('tabContentCheckHw') }
+        ];
+        tabs.forEach(tab => {
+            tab.btn.addEventListener('click', () => {
+                tabs.forEach(t => {
+                    t.btn.classList.remove('active');
+                    t.content.classList.remove('active');
+                });
+                tab.btn.classList.add('active');
+                tab.content.classList.add('active');
+                resultContainer.style.display = 'none';
+
+                if (tab.btn.id === 'tabBtnCheckHw') {
+                    populateClassSelector();
+                }
+            });
+        });
+
+        const resultContainer = document.getElementById('resultContainer');
+        const outputDiv = document.getElementById('output');
+        const copyMessage = document.getElementById('copyMessage');
+        const backendUrl = "https://script.google.com/macros/s/AKfycbw8pzZ0z_ANimfz5z0u_gtQXe6ZkGzOjJQV74a7SgBqbOihzocdJgjR2fa1F0eQZoMGMg/exec"; // This URL should point to your Google Apps Script deployment
+
+        // --- IMPORTANT: Your Gemini API Key goes here ---
+        // For local development or personal tools, you can place it directly.
+        // For production apps, consider more secure methods (e.g., server-side environment variables).
+        const GEMINI_API_KEY = "AIzaSyDXBkn0tzsUL22rLKfdRB7ZC7Vq4lOr6lI"; // Replace with your actual API Key
+
+        // --- Custom Alert Function ---
+        function showCustomAlert(message, type = 'info') {
+            const alertBox = document.getElementById('customAlert');
+            const alertMessage = document.getElementById('customAlertMessage');
+            const alertIcon = alertBox.querySelector('svg');
+
+            alertMessage.textContent = message;
+            alertBox.classList.remove('bg-blue-600', 'bg-green-600', 'bg-red-600');
+            alertIcon.innerHTML = ''; // Clear existing icon
+
+            if (type === 'success') {
+                alertBox.classList.add('bg-green-600');
+                alertIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>'; // Checkmark
+            } else if (type === 'error') {
+                alertBox.classList.add('bg-red-600');
+                alertIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>'; // X-mark
+            } else { // info
+                alertBox.classList.add('bg-blue-600');
+                alertIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>'; // Info circle
+            }
+
+            alertBox.classList.add('show');
+
+            setTimeout(() => {
+                alertBox.classList.remove('show');
+            }, 3000);
+        }
+
+        // --- Helper function for copying text ---
+        function copyToClipboard(text, button) {
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            textArea.style.top = '-9999px';
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                const originalText = button.innerHTML;
+                button.innerHTML = 'Đã chép!';
+                setTimeout(() => {
+                    button.innerHTML = originalText;
+                }, 1500);
+                showCustomAlert('Đã sao chép vào clipboard!', 'success'); // Use custom alert
+            } catch (err) {
+                showCustomAlert('Không thể sao chép tự động.', 'error'); // Use custom alert
+            }
+            document.body.removeChild(textArea);
+        }
+        
+        // Event delegation for copy buttons
+        outputDiv.addEventListener('click', function(e) {
+            if (e.target && e.target.matches('button.copy-btn')) {
+                const textToCopy = e.target.dataset.copy;
+                copyToClipboard(textToCopy, e.target);
+            }
+        });
+
+
+        // --- Lecture Announcement Logic ---
+        const generateBtnLecture = document.getElementById('generateBtnLecture');
+        generateBtnLecture.addEventListener('click', () => {
+            const classInput = document.getElementById('classInput');
+            const subjectInput = document.getElementById('subjectInput');
+            const lessonInput = document.getElementById('lessonInput');
+            const linkInput = document.getElementById('linkInput');
+            const announcementHTML = `📢 THÔNG BÁO GỬI PHỤ HUYNH VÀ HỌC SINH LỚP ${classInput.value.trim().toUpperCase()}
+Mọi người ơi tuần này chúng ta sẽ cùng nhau tìm hiểu môn ${subjectInput.value.trim()} qua bài : <strong style="color: #E53E3E;">${lessonInput.value.trim().toUpperCase()}</strong> nha!!!!
+Để buổi học môn ${subjectInput.value.trim()} lớp ${classInput.value.trim()} diễn ra hiệu quả và thú vị hơn, thầy mong các em dành chút thời gian xem trước bài giảng ở nhà theo hướng dẫn đã được giao.
+Thầy giáo cũng xin nhờ quý phụ huynh nhắc nhở con em mình đi học đầy đủ, đúng giờ và chủ động chuẩn bị bài vở, máy tính để việc học bài trở nên nhẹ nhàng và hiệu quả hơn.
+link bài giảng: <a href="${linkInput.value.trim()}" target="_blank" style="color: #3B82F6; text-decoration: underline;">${linkInput.value.trim()}</a>`;
+            
+            const resultTitle = `<div class="flex justify-between items-center mb-4"><h2 class="text-xl font-semibold">Nội dung thông báo bài giảng:</h2></div>`;
+            outputDiv.innerHTML = resultTitle + `<div class="bg-gray-100 dark:bg-gray-900/50 rounded-lg p-4 whitespace-pre-wrap text-sm">${announcementHTML}</div>`;
+            resultContainer.style.display = 'block';
+        });
+
+        // --- Homework Reminder Logic ---
+        const generateBtnHomework = document.getElementById('generateBtnHomework');
+        const hwSubjectInput = document.getElementById('hwSubjectInput');
+        const singleSubjectDetails = document.getElementById('singleSubjectDetails');
+        const multiSubjectDetails = document.getElementById('multiSubjectDetails');
+        const hwDeadlineInput = document.getElementById('hwDeadlineInput');
+        
+        const today = new Date();
+        const nextWeek = new Date(new Date().setDate(today.getDate() + 6));
+        hwDeadlineInput.value = nextWeek.toISOString().split('T')[0];
+
+        hwSubjectInput.addEventListener('change', () => {
+            singleSubjectDetails.style.display = hwSubjectInput.value === '3 phân môn' ? 'none' : 'block';
+            multiSubjectDetails.style.display = hwSubjectInput.value === '3 phân môn' ? 'block' : 'none';
+        });
+
+        generateBtnHomework.addEventListener('click', () => {
+            const subject = hwSubjectInput.value.trim();
+            const deadlineDate = new Date(hwDeadlineInput.value);
+            const formattedDeadline = deadlineDate.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
+            const deadlineText = `trước ngày ${formattedDeadline}`;
+            let homeworkDetails = '';
+
+            if (subject === '3 phân môn') {
+                const physics = document.getElementById('hwPhysicsInput').value.trim();
+                const chemistry = document.getElementById('hwChemistryInput').value.trim();
+                const biology = document.getElementById('hwBiologyInput').value.trim();
+                homeworkDetails = `Chúng ta tuần này sẽ làm bài tập về nhà của 3 phân môn như sau:
+- <strong style="color: #059669;">Lý:</strong> ${physics || '(Không có bài tập)'}
+- <strong style="color: #059669;">Hóa:</strong> ${chemistry || '(Không có bài tập)'}
+- <strong style="color: #059669;">Sinh:</strong> ${biology || '(Không có bài tập)'}`;
+            } else {
+                const questions = document.getElementById('hwQuestionsInput').value.trim();
+                homeworkDetails = `Chúng ta tuần này sẽ làm <strong style="color: #E53E3E;">${questions} câu</strong> bài tập về nhà của phân môn ${subject}`;
+            }
+            const link = document.getElementById('hwLinkInput').value.trim();
+            const note = document.getElementById('hwNoteInput').value.trim();
+            const announcementHTML = `📢 THÔNG BÁO NHẮC NHỞ BÀI TẬP VỀ NHÀ
+<strong style="color: #D97706;">lưu ý quan trọng:</strong> ${note}
+Các bạn ơi. ${homeworkDetails}
+Thầy nhắc lại: Đừng quên hoàn thành bài tập về nhà đã được giao trong buổi học vừa rồi. Đây là phần quan trọng giúp các em ôn lại kiến thức và chuẩn bị tốt cho tiết học tiếp theo.
+📝 <strong style="color: #1D4ED8;">Hạn nộp:</strong> ${deadlineText}
+📚 Các bạn nhớ làm bài trên web thầy gửi, hãy ghi nhớ điểm mạnh và những câu sai nhá.
+⏰ Hãy sắp xếp thời gian hợp lý để hoàn thành đúng hạn nhé!
+Nếu có thắc mắc gì, các em có thể trao đổi trực tiếp với thầy hoặc anh, chị trợ giảng hoặc hỏi trong nhóm lớp.
+đây là link bài tập về nhà tuần này của các bạn: <a href="${link}" target="_blank" style="color: #3B82F6; text-decoration: underline;">${link}</a>
+Phụ Huynh nhắc các con làm bài giúp thầy nha!!!`;
+            const resultTitle = `<div class="flex justify-between items-center mb-4"><h2 class="text-xl font-semibold">Nội dung thông báo bài tập:</h2></div>`;
+            outputDiv.innerHTML = resultTitle + `<div class="bg-gray-100 dark:bg-gray-900/50 rounded-lg p-4 whitespace-pre-wrap text-sm">${announcementHTML}</div>`;
+            resultContainer.style.display = 'block';
+        });
+
+        // --- Session Feedback Logic (REBUILT) ---
+        const btnLoadSheetData = document.getElementById('btnLoadSheetData');
+        const loadBtnText = document.getElementById('loadBtnText');
+        const loadLoader = document.getElementById('loadLoader');
+        const fbStep2 = document.getElementById('fb-step2');
+        const fbSheetSelect = document.getElementById('fbSheetSelect');
+        const fbNameColumnSelect = document.getElementById('fbNameColumnSelect');
+        const fbScoreColumnSelect = document.getElementById('fbScoreColumnSelect');
+        const fbTotalQuestionsColumnSelect = document.getElementById('fbTotalQuestionsColumnSelect');
+        const generateBtnFeedback = document.getElementById('generateBtnFeedback');
+        const feedbackBtnText = document.getElementById('feedbackBtnText');
+        const feedbackLoader = document.getElementById('feedbackLoader');
+        let sheetMetadata = {};
+
+        btnLoadSheetData.addEventListener('click', async () => {
+            const sheetUrl = document.getElementById('fbSheetLink').value.trim();
+            if (!sheetUrl) {
+                showCustomAlert('Vui lòng nhập link Google Sheet.', 'error');
+                return;
+            }
+
+            loadBtnText.textContent = 'Đang tải...';
+            loadLoader.style.display = 'inline-block';
+            btnLoadSheetData.disabled = true;
+            fbStep2.classList.add('hidden');
+            generateBtnFeedback.disabled = true;
+
+            try {
+                const response = await fetch(backendUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ action: 'getSheetMetadata', sheetUrl }),
+                    redirect: 'follow'
+                });
+                const data = await response.json();
+                if (data.error) throw new Error(data.error);
+
+                sheetMetadata = data.metadata;
+                const sheetNames = Object.keys(sheetMetadata);
+                
+                if (sheetNames.length === 0) {
+                    showCustomAlert('Không tìm thấy sheet nào trong file.', 'error');
+                    return;
+                }
+
+                fbSheetSelect.innerHTML = '';
+                sheetNames.forEach(name => {
+                    const option = new Option(name, name);
+                    fbSheetSelect.add(option);
+                });
+
+                updateColumnSelectors();
+                fbStep2.classList.remove('hidden');
+                generateBtnFeedback.disabled = false;
+                showCustomAlert('Tải thông tin Sheet thành công!', 'success');
+
+            } catch (error) {
+                showCustomAlert(`Lỗi khi tải dữ liệu Sheet: ${error.message}`, 'error');
+            } finally {
+                loadBtnText.textContent = 'Tải thông tin Sheet';
+                loadLoader.style.display = 'none';
+                btnLoadSheetData.disabled = false;
+            }
+        });
+
+        fbSheetSelect.addEventListener('change', updateColumnSelectors);
+
+        function updateColumnSelectors() {
+            const selectedSheet = fbSheetSelect.value;
+            const columns = sheetMetadata[selectedSheet] || [];
+            
+            fbNameColumnSelect.innerHTML = '';
+            fbScoreColumnSelect.innerHTML = '';
+            fbTotalQuestionsColumnSelect.innerHTML = '';
+
+            columns.forEach(col => {
+                fbNameColumnSelect.add(new Option(col, col));
+                fbScoreColumnSelect.add(new Option(col, col));
+                fbTotalQuestionsColumnSelect.add(new Option(col, col));
+            });
+        }
+
+        // Function to call Gemini API with exponential backoff
+        async function callGeminiApiWithRetry(prompt, apiKey, retries = 3, delay = 1000) {
+            let chatHistory = [];
+            chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+            const payload = {
+                contents: chatHistory,
+                generationConfig: {
+                    responseMimeType: "application/json",
+                    responseSchema: {
+                        type: "OBJECT",
+                        properties: {
+                            "generalComment": { "type": "STRING" },
+                            "highScorerPraise": { "type": "STRING" },
+                            "lowScorerEncouragement": { "type": "STRING" }
+                        },
+                        "required": ["generalComment", "highScorerPraise", "lowScorerEncouragement"]
+                    }
+                }
+            };
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+
+            for (let i = 0; i < retries; i++) {
+                try {
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        // If it's a server error (5xx) or rate limit (429), retry
+                        if (response.status >= 500 || response.status === 429) {
+                            console.warn(`Retry attempt ${i + 1} for Gemini API. Status: ${response.status}`);
+                            await new Promise(res => setTimeout(res, delay));
+                            delay *= 2; // Exponential backoff
+                            continue;
+                        } else {
+                            // Other client-side errors, don't retry
+                            throw new Error(`Lỗi Gemini API: ${response.status} - ${response.statusText}`);
+                        }
+                    }
+
+                    const result = await response.json();
+                    if (result.candidates && result.candidates.length > 0 &&
+                        result.candidates[0].content && result.candidates[0].content.parts &&
+                        result.candidates[0].content.parts.length > 0) {
+                        const json = result.candidates[0].content.parts[0].text;
+                        return JSON.parse(json);
+                    } else {
+                        throw new Error("Cấu trúc phản hồi từ Gemini API không mong muốn.");
+                    }
+                } catch (error) {
+                    if (i === retries - 1) { // Last retry failed
+                        throw error;
+                    }
+                }
+            }
+            throw new Error("Không thể kết nối với Gemini API sau nhiều lần thử.");
+        }
+
+
+        generateBtnFeedback.addEventListener('click', async () => {
+            const subject = document.getElementById('fbSubject').value.trim();
+            const lesson = document.getElementById('fbLesson').value.trim();
+            const sheetUrl = document.getElementById('fbSheetLink').value.trim();
+            const sheetName = fbSheetSelect.value;
+            const nameColumn = fbNameColumnSelect.value;
+            const scoreColumn = fbScoreColumnSelect.value;
+            const totalQuestionsColumn = fbTotalQuestionsColumnSelect.value;
+            const useAI = document.getElementById('fbUseAI').checked;
+            
+            // Use the hardcoded API key
+            const geminiApiKey = GEMINI_API_KEY; 
+            
+            if (!subject || !lesson || !sheetUrl || !sheetName || !nameColumn || !scoreColumn || !totalQuestionsColumn) {
+                showCustomAlert('Vui lòng hoàn tất các bước và lựa chọn.', 'error');
+                return;
+            }
+
+            // No need to check geminiApiKey if it's hardcoded, but you might want to check if it's empty
+            if (useAI && (!geminiApiKey || geminiApiKey === "YOUR_GEMINI_API_KEY_HERE")) {
+                showCustomAlert('API Key chưa được cấu hình hoặc không hợp lệ trong mã nguồn. Vui lòng thay thế "YOUR_GEMINI_API_KEY_HERE" bằng API Key thực của bạn.', 'error');
+                return;
+            }
+
+            feedbackBtnText.textContent = 'Đang phân tích...';
+            feedbackLoader.style.display = 'inline-block';
+            generateBtnFeedback.disabled = true;
+            
+            try {
+                // Step 1: Get data from Google Apps Script (backend)
+                const backendPayload = {
+                    action: 'analyzeSheet',
+                    subject,
+                    lesson,
+                    sheetUrl,
+                    sheetName,
+                    nameColumn,
+                    scoreColumn,
+                    totalQuestionsColumn,
+                    useAI: false // Always set to false for backend, as AI is now handled frontend
+                };
+
+                const backendResponse = await fetch(backendUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(backendPayload),
+                    redirect: 'follow'
+                });
+
+                if (!backendResponse.ok) throw new Error(`Lỗi mạng hoặc máy chủ backend: ${backendResponse.status}`);
+                let data = await backendResponse.json();
+                if (data.error) throw new Error(data.error);
+
+                let generalComment = data.generalComment;
+                let highScorerPraise = data.highScorerPraise;
+                let lowScorerEncouragement = data.lowScorerEncouragement;
+
+                // Step 2: If AI is enabled, call Gemini API from frontend
+                if (useAI) {
+                    feedbackBtnText.textContent = 'Đang tạo nhận xét AI...';
+                    // Updated prompt to explicitly ask for JSON only and adopt teacher persona
+                    const prompt = `Bạn là một thầy giáo. Dựa trên thông tin buổi học và kết quả của học sinh, hãy tạo một nhận xét chung về buổi học, một lời khen ngợi cho học sinh điểm cao và một lời động viên cho học sinh cần cố gắng thêm.
+Môn học: ${subject}
+Bài học: ${lesson}
+Điểm trung bình: ${data.averageScore}%
+Điểm trung vị: ${data.medianScore}%
+5 học sinh điểm cao nhất: ${data.topStudents.join(', ')}
+3 học sinh điểm thấp nhất: ${data.bottomStudents.join(', ')}
+
+Chỉ trả về đối tượng JSON với các trường: "generalComment", "highScorerPraise", "lowScorerEncouragement". Không có văn bản nào khác ngoài JSON.`;
+
+                    try {
+                        const aiComments = await callGeminiApiWithRetry(prompt, geminiApiKey);
+                        generalComment = aiComments.generalComment;
+                        highScorerPraise = aiComments.highScorerPraise;
+                        lowScorerEncouragement = aiComments.lowScorerEncouragement;
+                        showCustomAlert('Nhận xét AI đã được tạo thành công!', 'success');
+                    } catch (aiError) {
+                        console.error("Lỗi khi gọi Gemini API:", aiError);
+                        showCustomAlert(`Lỗi khi tạo nhận xét AI: ${aiError.message}. Sử dụng nhận xét mặc định.`, 'error');
+                        // Fallback to backend's default comments if AI generation fails
+                        // The 'data' object already contains default comments from the backend call
+                    }
+                }
+                
+                const fullReportText = `Thầy giáo xin gửi điểm số và nhận xét của buổi học môn ${subject} bài: ${lesson}\n\n` +
+                                        `✅ 5 Học sinh có điểm cao nhất:\n${data.topStudents.join('\n')}\n\n` +
+                                        `🆘 3 học sinh có điểm thấp nhất:\n${data.bottomStudents.join('\n')}\n\n` +
+                                        `--- THỐNG KÊ CHUNG ---\n` +
+                                        `- Điểm trung bình: ${data.averageScore}%\n` +
+                                        `- Điểm trung vị: ${data.medianScore}%\n\n` +
+                                        `--- NHẬN XÉT CỦA GIÁO VIÊN ---\n${generalComment}\n\n` +
+                                        `-> Gửi các bạn điểm cao: ${highScorerPraise}\n` +
+                                        `-> Gửi các bạn cần cố gắng thêm: ${lowScorerEncouragement}`;
+
+                const feedbackHTML = `
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-semibold">Nhận xét buổi học môn ${subject}</h2>
+                        <button class="copy-btn text-sm font-medium text-blue-600 hover:underline" data-copy="${fullReportText}">Sao chép tất cả</button>
+                    </div>
+                    <div class="bg-gray-100 dark:bg-gray-900/50 rounded-lg p-4 space-y-4 text-sm">
+                        <p>Thầy giáo xin gửi điểm số và nhận xét của buổi học môn <strong>${subject}</strong> bài: <strong>${lesson}</strong></p>
+                        <div>
+                            <h3 class="font-semibold text-green-600">✅ 5 Học sinh có điểm cao nhất:</h3>
+                            <ul class="list-disc list-inside ml-4">${data.topStudents.map(s => `<li>${s}</li>`).join('')}</ul>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-red-600">🆘 3 học sinh có điểm thấp nhất:</h3>
+                            <ul class="list-disc list-inside ml-4">${data.bottomStudents.map(s => `<li>${s}</li>`).join('')}</ul>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold">📊 Thống kê chung:</h3>
+                            <p>- <strong>Điểm trung bình:</strong> ${data.averageScore}%</p>
+                            <p>- <strong>Điểm trung vị:</strong> ${data.medianScore}%</p>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold">⭐ Nhận xét của giáo viên:</h3>
+                            <p class="mt-1 italic">"${generalComment}"</p>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-blue-600">💌 Lời động viên:</h3>
+                            <p class="mt-1 pl-4 border-l-2 border-green-500"><strong>Gửi các bạn điểm cao:</strong> ${highScorerPraise}</p>
+                            <p class="mt-2 pl-4 border-l-2 border-orange-500"><strong>Gửi các bạn cần cố gắng thêm:</strong> ${lowScorerEncouragement}</p>
+                        </div>
+                    </div>`;
+
+                outputDiv.innerHTML = feedbackHTML;
+                resultContainer.style.display = 'block';
+                showCustomAlert('Đã tạo nhận xét thành công!', 'success');
+
+            } catch (error) {
+                outputDiv.innerHTML = `<h2 class="text-xl font-semibold text-red-600 dark:text-red-400 mb-4">Đã xảy ra lỗi</h2>
+                <div class="bg-red-50 dark:bg-red-900/30 p-4 rounded-lg">
+                    <p><strong>Không thể phân tích.</strong></p>
+                    <p class="mt-2"><strong>Chi tiết lỗi:</strong> ${error.message}</p>
+                    <p class="mt-4 text-sm"><strong>Gợi ý:</strong>
+                        <ul class="list-disc list-inside mt-1">
+                            <li>Kiểm tra lại link Google Sheet điểm đã chính xác và đã được chia sẻ công khai.</li>
+                            <li>Đảm bảo bạn đã chọn đúng Sheet và các cột dữ liệu.</li>
+                            <li>Đảm bảo bạn đã triển khai lại file Apps Script sau khi cập nhật.</li>
+                            <li>Nếu sử dụng AI, hãy kiểm tra lại Gemini API Key.</li>
+                        </ul>
+                    </p>
+                </div>`;
+                resultContainer.style.display = 'block';
+                showCustomAlert('Lỗi khi tạo nhận xét.', 'error');
+            } finally {
+                feedbackBtnText.textContent = 'Phân tích và tạo nhận xét';
+                feedbackLoader.style.display = 'none';
+                generateBtnFeedback.disabled = false;
+            }
+        });
+
+        // --- Update Lecture Logic ---
+        const btnUpdateLecture = document.getElementById('btnUpdateLecture');
+        const updateBtnText = document.getElementById('updateBtnText');
+        const updateLoader = document.getElementById('updateLoader');
+        const updateDateInput = document.getElementById('updateDate');
+        if (updateDateInput) {
+            updateDateInput.valueAsDate = new Date();
+        }
+
+        if (btnUpdateLecture) {
+            btnUpdateLecture.addEventListener('click', async () => {
+                const classId = document.getElementById('updateClass').value;
+                const subject = document.getElementById('updateSubject').value;
+                const content = document.getElementById('updateContent').value.trim();
+                const date = document.getElementById('updateDate').value;
+                const lectureLink = document.getElementById('updateLectureLink').value.trim();
+                const videoLink = document.getElementById('updateVideoLink').value.trim();
+                const homeworkLink = document.getElementById('updateHomeworkLink').value.trim();
+
+                if (!classId || !subject || !content || !date || !lectureLink) {
+                    showCustomAlert('Vui lòng điền đầy đủ các trường bắt buộc.', 'error');
+                    return;
+                }
+
+                updateBtnText.textContent = 'Đang cập nhật...';
+                updateLoader.style.display = 'inline-block';
+                btnUpdateLecture.disabled = true;
+
+                try {
+                    const response = await fetch(backendUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify({
+                            action: 'updateLecture', // Specify the action
+                            classId,
+                            subject,
+                            content,
+                            date,
+                            lectureLink,
+                            videoLink,
+                            homeworkLink
+                        }),
+                        redirect: 'follow'
+                    });
+                    const data = await response.json();
+                    if (data.error) throw new Error(data.error);
+                    
+                    showCustomAlert(data.message, 'success'); // Show success message
+                    // Clear fields after successful update
+                    document.getElementById('updateContent').value = '';
+                    document.getElementById('updateLectureLink').value = '';
+                    document.getElementById('updateVideoLink').value = '';
+                    document.getElementById('updateHomeworkLink').value = '';
+
+                } catch (error) {
+                    showCustomAlert('Lỗi khi cập nhật: ' + error.message, 'error');
+                } finally {
+                    updateBtnText.textContent = 'Up bài giảng';
+                    updateLoader.style.display = 'none';
+                    btnUpdateLecture.disabled = false;
+                }
+            });
+        }
+
+        // --- Check Homework Logic ---
+        const btnCheckHw = document.getElementById('btnCheckHw');
+        const checkHwBtnText = document.getElementById('checkHwBtnText');
+        const checkHwLoader = document.getElementById('checkHwLoader');
+        const checkHwClassSelect = document.getElementById('checkHwClassSelect');
+
+        async function populateClassSelector() {
+            if (!checkHwClassSelect) return;
+            // Only fetch if options are not already loaded or if it's disabled (meaning it needs a refresh)
+            if (checkHwClassSelect.options.length > 1 && !checkHwClassSelect.disabled) return; 
+            
+            checkHwClassSelect.innerHTML = '<option>Đang tải danh sách lớp...</option>';
+            checkHwClassSelect.disabled = true;
+            try {
+                const response = await fetch(backendUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ action: 'getSheetNames' }),
+                    redirect: 'follow'
+                });
+                const data = await response.json();
+                if (data.error) throw new Error(data.error);
+                const sheetNames = data.sheetNames;
+                checkHwClassSelect.innerHTML = '';
+                if (sheetNames && sheetNames.length > 0) {
+                    sheetNames.forEach(name => {
+                        const option = new Option(name, name);
+                        checkHwClassSelect.appendChild(option);
+                    });
+                } else {
+                    checkHwClassSelect.innerHTML = '<option>Không tìm thấy lớp nào</option>';
+                }
+            } catch (error) {
+                checkHwClassSelect.innerHTML = `<option>Lỗi khi tải danh sách</option>`;
+                console.error("Lỗi khi tải danh sách lớp:", error);
+                showCustomAlert('Lỗi khi tải danh sách lớp.', 'error');
+            } finally {
+                checkHwClassSelect.disabled = false;
+            }
+        }
+
+        if (btnCheckHw) {
+            btnCheckHw.addEventListener('click', async () => {
+                const className = checkHwClassSelect.value;
+                const scoreSheetUrl = document.getElementById('checkHwScoreSheet').value.trim();
+                if (!className || !scoreSheetUrl || checkHwClassSelect.disabled) {
+                    showCustomAlert('Vui lòng chọn lớp và điền link Google Sheet điểm.', 'error');
+                    return;
+                }
+                checkHwBtnText.textContent = 'Đang kiểm tra...';
+                checkHwLoader.style.display = 'inline-block';
+                btnCheckHw.disabled = true;
+                try {
+                    const response = await fetch(backendUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify({
+                            action: 'checkHomework',
+                            className,
+                            scoreSheetUrl
+                        }),
+                        redirect: 'follow'
+                    });
+                    if (!response.ok) throw new Error(`Lỗi mạng hoặc máy chủ: ${response.status}`);
+                    const data = await response.json();
+                    if (data.error) throw new Error(data.error);
+
+                    const missingStudents = data.missingStudents;
+                    let resultHTML = `<h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">Kết quả kiểm tra bài tập về nhà:</h2>`;
+                    if (missingStudents.length > 0) {
+                        resultHTML += `<p class="mb-4">Có <strong>${missingStudents.length}</strong> học sinh chưa nộp bài:</p>`;
+                        missingStudents.forEach(student => {
+                            resultHTML += `
+                            <div class="bg-gray-100 dark:bg-gray-900/50 rounded-lg p-4 mb-4">
+                                <h3 class="font-bold text-lg text-indigo-600 dark:text-indigo-400">${student.name}</h3>
+                                <div class="mt-3 space-y-3 text-sm">
+                                    <div class="flex items-center justify-between">
+                                        <span>Zalo PH: ${student.parentZalo || 'Chưa có'}</span>
+                                        <button class="copy-btn text-xs bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded" data-copy="${student.parentZalo}">Chép SĐT</button>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span>Zalo HS: ${student.studentZalo || 'Chưa có'}</span>
+                                        <button class="copy-btn text-xs bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded" data-copy="${student.studentZalo}">Chép SĐT</button>
+                                    </div>
+                                    <div class="pt-2">
+                                        <label class="block font-medium text-gray-700 dark:text-gray-300">Tin nhắn cho phụ huynh:</label>
+                                        <div class="flex items-start mt-1">
+                                            <textarea readonly class="w-full h-20 p-2 bg-white dark:bg-gray-800 rounded-md text-xs">${student.parentMsg}</textarea>
+                                            <button class="copy-btn text-xs bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 px-2 py-1 rounded ml-2" data-copy="${student.parentMsg}">Chép tin</button>
+                                        </div>
+                                    </div>
+                                    <div class="pt-2">
+                                        <label class="block font-medium text-gray-700 dark:text-gray-300">Tin nhắn cho học sinh:</label>
+                                        <div class="flex items-start mt-1">
+                                            <textarea readonly class="w-full h-20 p-2 bg-white dark:bg-gray-800 rounded-md text-xs">${student.studentMsg}</textarea>
+                                            <button class="copy-btn text-xs bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 px-2 py-1 rounded ml-2" data-copy="${student.studentMsg}">Chép tin</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            `;
+                        });
+                        showCustomAlert(`Có ${missingStudents.length} học sinh chưa nộp bài.`, 'info');
+                    } else {
+                        resultHTML += '<p class="text-green-600 font-semibold">🎉 Chúc mừng! Tất cả học sinh đã nộp bài.</p>';
+                        showCustomAlert('Tất cả học sinh đã nộp bài!', 'success');
+                    }
+                    outputDiv.innerHTML = resultHTML;
+                    resultContainer.style.display = 'block';
+                } catch (error) {
+                    outputDiv.innerHTML = `<h2 class="text-xl font-semibold text-red-600 dark:text-red-400 mb-4">Đã xảy ra lỗi</h2>
+                    <div class="bg-red-50 dark:bg-red-900/30 p-4 rounded-lg">
+                        <p><strong>Không thể lấy kết quả.</strong></p>
+                        <p class="mt-2"><strong>Chi tiết lỗi:</strong> ${error.message}</p>
+                        <p class="mt-4 text-sm"><strong>Gợi ý:</strong>
+                            <ul class="list-disc list-inside mt-1">
+                                <li>Kiểm tra lại link Google Sheet điểm đã chính xác chưa.</li>
+                                <li>Đảm bảo bạn đã triển khai lại file Apps Script sau khi cập nhật.</li>
+                                <li>Mở file Google Sheet và chắc chắn rằng bạn đã cấp quyền cho script hoạt động.</li>
+                            </ul>
+                        </p>
+                    </div>`;
+                    resultContainer.style.display = 'block';
+                    showCustomAlert('Lỗi khi kiểm tra bài tập.', 'error');
+                } finally {
+                    checkHwBtnText.textContent = 'Kiểm tra';
+                    checkHwLoader.style.display = 'none';
+                    btnCheckHw.disabled = false;
+                }
+            });
+        }
+    });
+    </script>
+
+</body>
+</html>
