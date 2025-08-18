@@ -85,6 +85,9 @@
                     <button id="tabBtnCheckHw" class="tab-btn whitespace-nowrap py-3 px-2 sm:px-4 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300">
                         Check bài tập
                     </button>
+                    <button id="tabBtnLowScore" class="tab-btn whitespace-nowrap py-3 px-2 sm:px-4 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300">
+                        Điểm thấp
+                    </button>
                 </nav>
             </div>
 
@@ -299,6 +302,11 @@
                     </button>
                 </div>
             </div>
+            
+            <!-- Tab Content: Low Score -->
+            <div id="tabContentLowScore" class="tab-content fade-in">
+                <iframe id="lowScoreFrame" style="width: 100%; height: 1200px; border: none;" title="Phân tích học sinh điểm thấp"></iframe>
+            </div>
 
 
             <!-- Result Section (Shared by all tabs) -->
@@ -323,7 +331,8 @@
             { btn: document.getElementById('tabBtnHomework'), content: document.getElementById('tabContentHomework') },
             { btn: document.getElementById('tabBtnFeedback'), content: document.getElementById('tabContentFeedback') },
             { btn: document.getElementById('tabBtnUpdate'), content: document.getElementById('tabContentUpdate') },
-            { btn: document.getElementById('tabBtnCheckHw'), content: document.getElementById('tabContentCheckHw') }
+            { btn: document.getElementById('tabBtnCheckHw'), content: document.getElementById('tabContentCheckHw') },
+            { btn: document.getElementById('tabBtnLowScore'), content: document.getElementById('tabContentLowScore') }
         ];
         tabs.forEach(tab => {
             tab.btn.addEventListener('click', () => {
@@ -417,13 +426,25 @@
             const subjectInput = document.getElementById('subjectInput');
             const lessonInput = document.getElementById('lessonInput');
             const linkInput = document.getElementById('linkInput');
+            
+            // Create a text-only version for clipboard
+            const announcementText = `📢 THÔNG BÁO GỬI PHỤ HUYNH VÀ HỌC SINH LỚP ${classInput.value.trim().toUpperCase()}
+Mọi người ơi tuần này chúng ta sẽ cùng nhau tìm hiểu môn ${subjectInput.value.trim()} qua bài : ${lessonInput.value.trim().toUpperCase()} nha!!!!
+Để buổi học môn ${subjectInput.value.trim()} lớp ${classInput.value.trim()} diễn ra hiệu quả và thú vị hơn, thầy mong các em dành chút thời gian xem trước bài giảng ở nhà theo hướng dẫn đã được giao.
+Thầy giáo cũng xin nhờ quý phụ huynh nhắc nhở con em mình đi học đầy đủ, đúng giờ và chủ động chuẩn bị bài vở, máy tính để việc học bài trở nên nhẹ nhàng và hiệu quả hơn.
+link bài giảng: ${linkInput.value.trim()}`;
+
+            // Create HTML version for display
             const announcementHTML = `📢 THÔNG BÁO GỬI PHỤ HUYNH VÀ HỌC SINH LỚP ${classInput.value.trim().toUpperCase()}
 Mọi người ơi tuần này chúng ta sẽ cùng nhau tìm hiểu môn ${subjectInput.value.trim()} qua bài : <strong style="color: #E53E3E;">${lessonInput.value.trim().toUpperCase()}</strong> nha!!!!
 Để buổi học môn ${subjectInput.value.trim()} lớp ${classInput.value.trim()} diễn ra hiệu quả và thú vị hơn, thầy mong các em dành chút thời gian xem trước bài giảng ở nhà theo hướng dẫn đã được giao.
 Thầy giáo cũng xin nhờ quý phụ huynh nhắc nhở con em mình đi học đầy đủ, đúng giờ và chủ động chuẩn bị bài vở, máy tính để việc học bài trở nên nhẹ nhàng và hiệu quả hơn.
 link bài giảng: <a href="${linkInput.value.trim()}" target="_blank" style="color: #3B82F6; text-decoration: underline;">${linkInput.value.trim()}</a>`;
             
-            const resultTitle = `<div class="flex justify-between items-center mb-4"><h2 class="text-xl font-semibold">Nội dung thông báo bài giảng:</h2></div>`;
+            const resultTitle = `<div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-semibold">Nội dung thông báo bài giảng:</h2>
+                <button class="copy-btn text-white bg-blue-600 hover:bg-blue-700 font-medium rounded-lg text-sm px-4 py-2" data-copy="${announcementText}">Sao chép</button>
+            </div>`;
             outputDiv.innerHTML = resultTitle + `<div class="bg-gray-100 dark:bg-gray-900/50 rounded-lg p-4 whitespace-pre-wrap text-sm">${announcementHTML}</div>`;
             resultContainer.style.display = 'block';
         });
@@ -450,6 +471,7 @@ link bài giảng: <a href="${linkInput.value.trim()}" target="_blank" style="co
             const formattedDeadline = deadlineDate.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
             const deadlineText = `trước ngày ${formattedDeadline}`;
             let homeworkDetails = '';
+            let homeworkDetailsText = '';
 
             if (subject === '3 phân môn') {
                 const physics = document.getElementById('hwPhysicsInput').value.trim();
@@ -459,12 +481,18 @@ link bài giảng: <a href="${linkInput.value.trim()}" target="_blank" style="co
 - <strong style="color: #059669;">Lý:</strong> ${physics || '(Không có bài tập)'}
 - <strong style="color: #059669;">Hóa:</strong> ${chemistry || '(Không có bài tập)'}
 - <strong style="color: #059669;">Sinh:</strong> ${biology || '(Không có bài tập)'}`;
+                homeworkDetailsText = `Chúng ta tuần này sẽ làm bài tập về nhà của 3 phân môn như sau:
+- Lý: ${physics || '(Không có bài tập)'}
+- Hóa: ${chemistry || '(Không có bài tập)'}
+- Sinh: ${biology || '(Không có bài tập)'}`;
             } else {
                 const questions = document.getElementById('hwQuestionsInput').value.trim();
                 homeworkDetails = `Chúng ta tuần này sẽ làm <strong style="color: #E53E3E;">${questions} câu</strong> bài tập về nhà của phân môn ${subject}`;
+                homeworkDetailsText = `Chúng ta tuần này sẽ làm ${questions} câu bài tập về nhà của phân môn ${subject}`;
             }
             const link = document.getElementById('hwLinkInput').value.trim();
             const note = document.getElementById('hwNoteInput').value.trim();
+            
             const announcementHTML = `📢 THÔNG BÁO NHẮC NHỞ BÀI TẬP VỀ NHÀ
 <strong style="color: #D97706;">lưu ý quan trọng:</strong> ${note}
 Các bạn ơi. ${homeworkDetails}
@@ -475,7 +503,22 @@ Thầy nhắc lại: Đừng quên hoàn thành bài tập về nhà đã đư�
 Nếu có thắc mắc gì, các em có thể trao đổi trực tiếp với thầy hoặc anh, chị trợ giảng hoặc hỏi trong nhóm lớp.
 đây là link bài tập về nhà tuần này của các bạn: <a href="${link}" target="_blank" style="color: #3B82F6; text-decoration: underline;">${link}</a>
 Phụ Huynh nhắc các con làm bài giúp thầy nha!!!`;
-            const resultTitle = `<div class="flex justify-between items-center mb-4"><h2 class="text-xl font-semibold">Nội dung thông báo bài tập:</h2></div>`;
+
+            const announcementText = `📢 THÔNG BÁO NHẮC NHỞ BÀI TẬP VỀ NHÀ
+lưu ý quan trọng: ${note}
+Các bạn ơi. ${homeworkDetailsText}
+Thầy nhắc lại: Đừng quên hoàn thành bài tập về nhà đã được giao trong buổi học vừa rồi. Đây là phần quan trọng giúp các em ôn lại kiến thức và chuẩn bị tốt cho tiết học tiếp theo.
+📝 Hạn nộp: ${deadlineText}
+📚 Các bạn nhớ làm bài trên web thầy gửi, hãy ghi nhớ điểm mạnh và những câu sai nhá.
+⏰ Hãy sắp xếp thời gian hợp lý để hoàn thành đúng hạn nhé!
+Nếu có thắc mắc gì, các em có thể trao đổi trực tiếp với thầy hoặc anh, chị trợ giảng hoặc hỏi trong nhóm lớp.
+đây là link bài tập về nhà tuần này của các bạn: ${link}
+Phụ Huynh nhắc các con làm bài giúp thầy nha!!!`;
+
+            const resultTitle = `<div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-semibold">Nội dung thông báo bài tập:</h2>
+                <button class="copy-btn text-white bg-green-600 hover:bg-green-700 font-medium rounded-lg text-sm px-4 py-2" data-copy="${announcementText}">Sao chép</button>
+            </div>`;
             outputDiv.innerHTML = resultTitle + `<div class="bg-gray-100 dark:bg-gray-900/50 rounded-lg p-4 whitespace-pre-wrap text-sm">${announcementHTML}</div>`;
             resultContainer.style.display = 'block';
         });
@@ -721,7 +764,7 @@ Chỉ trả về đối tượng JSON với các trường: "generalComment", "h
                 const feedbackHTML = `
                     <div class="flex justify-between items-center mb-4">
                         <h2 class="text-xl font-semibold">Nhận xét buổi học môn ${subject}</h2>
-                        <button class="copy-btn text-sm font-medium text-blue-600 hover:underline" data-copy="${fullReportText}">Sao chép tất cả</button>
+                        <button class="copy-btn text-white bg-purple-600 hover:bg-purple-700 font-medium rounded-lg text-sm px-4 py-2" data-copy="${fullReportText}">Sao chép tất cả</button>
                     </div>
                     <div class="bg-gray-100 dark:bg-gray-900/50 rounded-lg p-4 space-y-4 text-sm">
                         <p>Thầy giáo xin gửi điểm số và nhận xét của buổi học môn <strong>${subject}</strong> bài: <strong>${lesson}</strong></p>
@@ -971,6 +1014,429 @@ Chỉ trả về đối tượng JSON với các trường: "generalComment", "h
                 }
             });
         }
+
+        // --- Low Score Iframe Logic ---
+        const lowScoreFrame = document.getElementById('lowScoreFrame');
+        const lowScoreHtmlContent = `
+        <!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Công Cụ Học Sinh Điểm Thấp</title>
+    <script src="https://cdn.tailwindcss.com"><\/script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .tab-content {
+            display: block; 
+        }
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #6366F1;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        #customAlert {
+            transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+            transform: translateX(calc(100% + 20px));
+            opacity: 0;
+        }
+        #customAlert.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+
+    <div class="container mx-auto p-4 sm:p-6 md:p-8 max-w-3xl">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 sm:p-8">
+            
+            <div class="text-center mb-8">
+                <h1 class="text-2xl sm:text-3xl font-bold text-blue-600 dark:text-blue-400">Công Cụ Học Sinh Điểm Thấp</h1>
+                <p class="text-gray-600 dark:text-gray-400 mt-2">Tìm và liên hệ học sinh có điểm bài tập dưới 7.</p>
+            </div>
+
+            <div id="tabContentLowScoreHw" class="tab-content active fade-in">
+                <div class="space-y-6">
+                    <div>
+                        <label for="lowScoreHwClassSelect" class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Chọn lớp</label>
+                        <select id="lowScoreHwClassSelect" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" disabled>
+                            <option>Đang tải danh sách lớp...</option>
+                        </select>
+                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Chọn lớp để lấy thông tin Zalo từ file dữ liệu lớp chính.</p>
+                    </div>
+                    
+                    <div>
+                        <label for="lowScoreHwSheetLink" class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Link Google Sheet Điểm Bài Tập</label>
+                        <input type="url" id="lowScoreHwSheetLink" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" placeholder="Dán link file điểm bài tập về nhà" required>
+                    </div>
+                    <div class="text-right">
+                        <button id="btnLoadLowScoreSheetData" class="text-white bg-blue-600 hover:bg-blue-700 font-medium rounded-lg text-sm px-5 py-2.5 inline-flex items-center">
+                            <span id="loadLowScoreBtnText">Tải thông tin Sheet</span>
+                            <div id="loadLowScoreLoader" class="loader ml-2" style="display: none;"></div>
+                        </button>
+                    </div>
+
+                    <div id="lowScoreHwStep2" class="hidden space-y-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                        <h3 class="text-lg font-semibold mb-2 text-gray-800 dark:text-gray-200">Chọn dữ liệu phân tích từ Sheet Điểm Bài Tập</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <div>
+                                <label for="lowScoreHwSheetSelect" class="block mb-2 text-sm font-medium">Chọn Sheet chứa điểm bài tập</label>
+                                <select id="lowScoreHwSheetSelect" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"></select>
+                            </div>
+                            <div>
+                                <label for="lowScoreHwNameColumnSelect" class="block mb-2 text-sm font-medium">Cột Tên học sinh (trong sheet điểm)</label>
+                                <select id="lowScoreHwNameColumnSelect" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"></select>
+                            </div>
+                            <div>
+                                <label for="lowScoreHwScoreColumnSelect" class="block mb-2 text-sm font-medium">Cột Số câu đúng</label>
+                                <select id="lowScoreHwScoreColumnSelect" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"></select>
+                            </div>
+                            <div>
+                                <label for="lowScoreHwTotalQuestionsColumnSelect" class="block mb-2 text-sm font-medium">Cột Tổng số câu</label>
+                                <select id="lowScoreHwTotalQuestionsColumnSelect" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"></select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-8 text-center">
+                    <button id="btnAnalyzeLowScores" class="w-full sm:w-auto text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-6 py-3 text-center inline-flex items-center disabled:bg-gray-400">
+                        <span id="analyzeLowScoresBtnText">Phân tích điểm thấp</span>
+                        <div id="analyzeLowScoresLoader" class="loader ml-3" style="display: none;"></div>
+                    </button>
+                </div>
+            </div>
+
+
+            <div id="resultContainer" class="mt-10" style="display: none;">
+                <div id="output"></div>
+                <div id="copyMessage" class="mt-2 text-center text-green-600 dark:text-green-400 font-medium" style="display: none;"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="customAlert" class="fixed bottom-4 right-4 bg-blue-600 text-white px-6 py-3 rounded-lg shadow-xl flex items-center space-x-3 z-50">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <span id="customAlertMessage"></span>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const lowScoreHwClassSelect = document.getElementById('lowScoreHwClassSelect');
+        const btnLoadLowScoreSheetData = document.getElementById('btnLoadLowScoreSheetData');
+        const loadLowScoreBtnText = document.getElementById('loadLowScoreBtnText');
+        const loadLowScoreLoader = document.getElementById('loadLowScoreLoader');
+        const lowScoreHwStep2 = document.getElementById('lowScoreHwStep2');
+        const lowScoreHwSheetSelect = document.getElementById('lowScoreHwSheetSelect');
+        const lowScoreHwNameColumnSelect = document.getElementById('lowScoreHwNameColumnSelect');
+        const lowScoreHwScoreColumnSelect = document.getElementById('lowScoreHwScoreColumnSelect');
+        const lowScoreHwTotalQuestionsColumnSelect = document.getElementById('lowScoreHwTotalQuestionsColumnSelect');
+        const btnAnalyzeLowScores = document.getElementById('btnAnalyzeLowScores');
+        const analyzeLowScoresBtnText = document.getElementById('analyzeLowScoresBtnText');
+        const analyzeLowScoresLoader = document.getElementById('analyzeLowScoresLoader');
+        let lowScoreSheetMetadata = {};
+        
+        const resultContainer = document.getElementById('resultContainer');
+        const outputDiv = document.getElementById('output');
+        const copyMessage = document.getElementById('copyMessage');
+
+        const backendUrl = "https://script.google.com/macros/s/AKfycbz3t_hcp0PAdTY4z1DeAVDbRiRDG7gDnBODBjfUXhVwY12IxAER0oWuONIEAhTIwKNF5Q/exec";
+        const MASTER_DATA_SHEET_ID = "12erfMYULjLAdCmL4x8Q-ZX_X4d3SAgohQA5hGrCa0SU";
+        const DEFAULT_MASTER_NAME_COL = "Họ và tên";
+        const DEFAULT_PARENT_ZALO_COL = "Zalo phụ huynh";
+        const DEFAULT_STUDENT_ZALO_COL = "Zalo học sinh";
+
+        function showCustomAlert(message, type = 'info') {
+            const alertBox = document.getElementById('customAlert');
+            const alertMessage = document.getElementById('customAlertMessage');
+            const alertIcon = alertBox.querySelector('svg');
+            alertMessage.textContent = message;
+            alertBox.classList.remove('bg-blue-600', 'bg-green-600', 'bg-red-600');
+            alertIcon.innerHTML = '';
+            if (type === 'success') {
+                alertBox.classList.add('bg-green-600');
+                alertIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>';
+            } else if (type === 'error') {
+                alertBox.classList.add('bg-red-600');
+                alertIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>';
+            } else {
+                alertBox.classList.add('bg-blue-600');
+                alertIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>';
+            }
+            alertBox.classList.add('show');
+            setTimeout(() => {
+                alertBox.classList.remove('show');
+            }, 3000);
+        }
+
+        function copyToClipboard(text, button) {
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            textArea.style.top = '-9999px';
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                const originalText = button.innerHTML;
+                button.innerHTML = 'Đã chép!';
+                setTimeout(() => {
+                    button.innerHTML = originalText;
+                }, 1500);
+                showCustomAlert('Đã sao chép vào clipboard!', 'success');
+            } catch (err) {
+                showCustomAlert('Không thể sao chép tự động.', 'error');
+            }
+            document.body.removeChild(textArea);
+        }
+        
+        outputDiv.addEventListener('click', function(e) {
+            if (e.target && e.target.matches('button.copy-btn')) {
+                const textToCopy = e.target.dataset.copy;
+                copyToClipboard(textToCopy, e.target);
+            }
+        });
+
+        async function populateLowScoreClassSelect() {
+            if (!lowScoreHwClassSelect) return;
+            lowScoreHwClassSelect.innerHTML = '<option>Đang tải danh sách lớp...</option>';
+            lowScoreHwClassSelect.disabled = true;
+            try {
+                const responseClasses = await fetch(backendUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ action: 'getSheetNames', spreadsheetId: MASTER_DATA_SHEET_ID }),
+                    redirect: 'follow'
+                });
+                const dataClasses = await responseClasses.json();
+                if (dataClasses.error) throw new Error(dataClasses.error);
+                const sheetNames = dataClasses.sheetNames;
+                lowScoreHwClassSelect.innerHTML = '';
+                if (sheetNames && sheetNames.length > 0) {
+                    sheetNames.forEach(name => {
+                        const option = new Option(name, name);
+                        lowScoreHwClassSelect.appendChild(option);
+                    });
+                } else {
+                    lowScoreHwClassSelect.innerHTML = '<option>Không tìm thấy lớp nào</option>';
+                }
+            } catch (error) {
+                lowScoreHwClassSelect.innerHTML = \`<option>Lỗi khi tải danh sách</option>\`;
+                console.error("Lỗi khi tải danh sách lớp:", error);
+                showCustomAlert('Lỗi khi tải danh sách lớp.', 'error');
+            } finally {
+                lowScoreHwClassSelect.disabled = false;
+            }
+        }
+
+        btnLoadLowScoreSheetData.addEventListener('click', async () => {
+            const sheetUrl = document.getElementById('lowScoreHwSheetLink').value.trim();
+            if (!sheetUrl) {
+                showCustomAlert('Vui lòng nhập link Google Sheet điểm bài tập.', 'error');
+                return;
+            }
+            loadLowScoreBtnText.textContent = 'Đang tải...';
+            loadLowScoreLoader.style.display = 'inline-block';
+            btnLoadLowScoreSheetData.disabled = true;
+            lowScoreHwStep2.classList.add('hidden');
+            btnAnalyzeLowScores.disabled = true;
+            try {
+                const response = await fetch(backendUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ action: 'getSheetMetadata', sheetUrl }),
+                    redirect: 'follow'
+                });
+                const data = await response.json();
+                if (data.error) throw new Error(data.error);
+                lowScoreSheetMetadata = data.metadata;
+                const sheetNames = Object.keys(lowScoreSheetMetadata);
+                if (sheetNames.length === 0) {
+                    showCustomAlert('Không tìm thấy sheet nào trong file.', 'error');
+                    return;
+                }
+                lowScoreHwSheetSelect.innerHTML = '';
+                sheetNames.forEach(name => {
+                    const option = new Option(name, name);
+                    lowScoreHwSheetSelect.add(option);
+                });
+                const selectedSheet = lowScoreHwSheetSelect.value;
+                const columns = lowScoreSheetMetadata[selectedSheet] || [];
+                lowScoreHwNameColumnSelect.innerHTML = '';
+                lowScoreHwScoreColumnSelect.innerHTML = '';
+                lowScoreHwTotalQuestionsColumnSelect.innerHTML = '';
+                columns.forEach(col => {
+                    lowScoreHwNameColumnSelect.add(new Option(col, col));
+                    lowScoreHwScoreColumnSelect.add(new Option(col, col));
+                    lowScoreHwTotalQuestionsColumnSelect.add(new Option(col, col));
+                });
+                lowScoreHwStep2.classList.remove('hidden');
+                btnAnalyzeLowScores.disabled = false;
+                showCustomAlert('Tải thông tin Sheet thành công!', 'success');
+            } catch (error) {
+                showCustomAlert(\`Lỗi khi tải dữ liệu Sheet: \${error.message}\`, 'error');
+            } finally {
+                loadLowScoreBtnText.textContent = 'Tải thông tin Sheet';
+                loadLowScoreLoader.style.display = 'none';
+                btnLoadLowScoreSheetData.disabled = false;
+            }
+        });
+
+        lowScoreHwSheetSelect.addEventListener('change', () => {
+            const selectedSheet = lowScoreHwSheetSelect.value;
+            const columns = lowScoreSheetMetadata[selectedSheet] || [];
+            lowScoreHwNameColumnSelect.innerHTML = '';
+            lowScoreHwScoreColumnSelect.innerHTML = '';
+            lowScoreHwTotalQuestionsColumnSelect.innerHTML = '';
+            columns.forEach(col => {
+                lowScoreHwNameColumnSelect.add(new Option(col, col));
+                lowScoreHwScoreColumnSelect.add(new Option(col, col));
+                lowScoreHwTotalQuestionsColumnSelect.add(new Option(col, col));
+            });
+        });
+
+        btnAnalyzeLowScores.addEventListener('click', async () => {
+            const selectedClassName = lowScoreHwClassSelect.value;
+            const homeworkSheetUrl = document.getElementById('lowScoreHwSheetLink').value.trim();
+            const homeworkSheetName = lowScoreHwSheetSelect.value;
+            const nameColHw = lowScoreHwNameColumnSelect.value;
+            const scoreColHw = lowScoreHwScoreColumnSelect.value;
+            const totalQuestionsColHw = lowScoreHwTotalQuestionsColumnSelect.value;
+            const nameColMaster = DEFAULT_MASTER_NAME_COL;
+            const parentZaloColMaster = DEFAULT_PARENT_ZALO_COL;
+            const studentZaloColMaster = DEFAULT_STUDENT_ZALO_COL;
+            if (!selectedClassName || !homeworkSheetUrl || !homeworkSheetName || !nameColHw || !scoreColHw || !totalQuestionsColHw) {
+                showCustomAlert('Vui lòng điền đầy đủ các trường bắt buộc và chọn cột.', 'error');
+                return;
+            }
+            analyzeLowScoresBtnText.textContent = 'Đang phân tích...';
+            analyzeLowScoresLoader.style.display = 'inline-block';
+            btnAnalyzeLowScores.disabled = true;
+            try {
+                const response = await fetch(backendUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({
+                        action: 'getHomeworkScores',
+                        masterSpreadsheetId: MASTER_DATA_SHEET_ID,
+                        selectedClassName: selectedClassName,
+                        homeworkSheetUrl: homeworkSheetUrl,
+                        homeworkSheetName: homeworkSheetName,
+                        nameColHw: nameColHw,
+                        scoreColHw: scoreColHw,
+                        totalQuestionsColHw: totalQuestionsColHw,
+                        nameColMaster: nameColMaster,
+                        parentZaloColMaster: parentZaloColMaster,
+                        studentZaloColMaster: studentZaloColMaster
+                    }),
+                    redirect: 'follow'
+                });
+                if (!response.ok) throw new Error(\`Lỗi mạng hoặc máy chủ: \${response.status}\`);
+                const data = await response.json();
+                if (data.error) throw new Error(data.error);
+                const lowScoreStudents = data.filter(student => {
+                    const score = parseFloat(student.score);
+                    const totalQuestions = parseFloat(student.totalQuestions);
+                    if (isNaN(score) || isNaN(totalQuestions) || totalQuestions === 0) return false;
+                    return (score / totalQuestions * 10) < 7;
+                });
+                let resultHTML = \`<h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">Học sinh có điểm bài tập dưới 7:</h2>\`;
+                if (lowScoreStudents.length > 0) {
+                    resultHTML += \`<p class="mb-4">Có <strong>\${lowScoreStudents.length}</strong> học sinh cần chú ý:</p>\`;
+                    lowScoreStudents.forEach(student => {
+                        const nameParts = student.name.trim().split(' ');
+                        const firstName = nameParts[nameParts.length - 1];
+                        const parentMsg = \`Anh/chị ơi, em thấy điểm bài tập về nhà của em \${firstName} hơi thấp (\${(parseFloat(student.score) / parseFloat(student.totalQuestions) * 10).toFixed(1)}/10 điểm). Chị hỏi xem con có vấn đề gì khiến con gặp khó khăn không ạ? Rất mong phụ huynh hỗ trợ nhắc nhở và cùng tìm hiểu nguyên nhân để giúp con tiến bộ hơn.\`;
+                        const studentMsg = \`Thầy thấy điểm BTVN của em hơi thấp nhỉ (\${(parseFloat(student.score) / parseFloat(student.totalQuestions) * 10).toFixed(1)}/10 điểm). Có khó khăn ở đâu không em? Nếu có bất kỳ câu nào chưa hiểu rõ, đừng ngần ngại nhắn tin hỏi thầy hoặc các anh chị trợ giảng nhé. Cố gắng lên em!\`;
+                        resultHTML += \`
+                        <div class="bg-gray-100 dark:bg-gray-900/50 rounded-lg p-4 mb-4">
+                            <h3 class="font-bold text-lg text-red-600 dark:text-red-400">\${student.name} (\${(parseFloat(student.score) / parseFloat(student.totalQuestions) * 10).toFixed(1)}/10 điểm)</h3>
+                            <div class="mt-3 space-y-3 text-sm">
+                                <div class="flex items-center justify-between">
+                                    <span>Zalo PH: \${student.parentZalo || 'Chưa có'}</span>
+                                    <button class="copy-btn text-xs bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded" data-copy="\${student.parentZalo}">Chép SĐT</button>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span>Zalo HS: \${student.studentZalo || 'Chưa có'}</span>
+                                    <button class="copy-btn text-xs bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded" data-copy="\${student.studentZalo}">Chép SĐT</button>
+                                </div>
+                                <div class="pt-2">
+                                    <label class="block font-medium text-gray-700 dark:text-gray-300">Tin nhắn cho phụ huynh:</label>
+                                    <div class="flex items-start mt-1">
+                                        <textarea readonly class="w-full h-20 p-2 bg-white dark:bg-gray-800 rounded-md text-xs">\${parentMsg}</textarea>
+                                        <button class="copy-btn text-xs bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 px-2 py-1 rounded ml-2" data-copy="\${parentMsg}">Chép tin</button>
+                                    </div>
+                                </div>
+                                <div class="pt-2">
+                                    <label class="block font-medium text-gray-700 dark:text-gray-300">Tin nhắn cho học sinh:</label>
+                                    <div class="flex items-start mt-1">
+                                        <textarea readonly class="w-full h-20 p-2 bg-white dark:bg-gray-800 rounded-md text-xs">\${studentMsg}</textarea>
+                                        <button class="copy-btn text-xs bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 px-2 py-1 rounded ml-2" data-copy="\${studentMsg}">Chép tin</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        \`;
+                    });
+                    showCustomAlert(\`Tìm thấy \${lowScoreStudents.length} học sinh điểm thấp.\`, 'info');
+                } else {
+                    resultHTML += '<p class="text-green-600 font-semibold">🎉 Chúc mừng! Không có học sinh nào dưới 7 điểm trong bài tập này.</p>';
+                    showCustomAlert('Không có học sinh nào dưới 7 điểm.', 'success');
+                }
+                outputDiv.innerHTML = resultHTML;
+                resultContainer.style.display = 'block';
+            } catch (error) {
+                outputDiv.innerHTML = \`<h2 class="text-xl font-semibold text-red-600 dark:text-red-400 mb-4">Đã xảy ra lỗi</h2>
+                <div class="bg-red-50 dark:bg-red-900/30 p-4 rounded-lg">
+                    <p><strong>Không thể phân tích điểm thấp.</strong></p>
+                    <p class="mt-2"><strong>Chi tiết lỗi:</strong> \${error.message}</p>
+                    <p class="mt-4 text-sm"><strong>Gợi ý:</strong>
+                        <ul class="list-disc list-inside mt-1">
+                            <li>Kiểm tra lại link Google Sheet điểm đã chính xác và đã được chia sẻ công khai.</li>
+                            <li>Đảm bảo bạn đã chọn đúng Sheet và các cột dữ liệu.</li>
+                            <li>Đảm bảo các cột điểm số và tổng số câu chỉ chứa giá trị số hợp lệ.</li>
+                            <li>Đảm bảo bạn đã triển khai lại file Apps Script sau khi cập nhật với action 'getHomeworkScores'.</li>
+                        </ul>
+                    </p>
+                </div>\`;
+                resultContainer.style.display = 'block';
+                showCustomAlert('Lỗi khi phân tích điểm thấp.', 'error');
+            } finally {
+                analyzeLowScoresBtnText.textContent = 'Phân tích điểm thấp';
+                analyzeLowScoresLoader.style.display = 'none';
+                btnAnalyzeLowScores.disabled = false;
+            }
+        });
+        populateLowScoreClassSelect();
+    });
+    <\/script>
+
+</body>
+</html>
+        `;
+        if (lowScoreFrame) {
+            lowScoreFrame.srcdoc = lowScoreHtmlContent.replace(/\\`/g, '`').replace(/\\\$/g, '$');
+        }
+
     });
     </script>
 
