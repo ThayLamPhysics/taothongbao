@@ -1365,7 +1365,7 @@ Chỉ trả về đối tượng JSON với các trường: "generalComment", "h
                     lowScoreStudents.forEach(student => {
                         const nameParts = student.name.trim().split(' ');
                         const firstName = nameParts[nameParts.length - 1];
-                        const parentMsg = \`Anh/chị ơi, em thấy điểm bài tập về nhà của em \${firstName} hơi thấp (\${(parseFloat(student.score) / parseFloat(student.totalQuestions) * 10).toFixed(1)}/10 điểm). Chị hỏi xem con có vấn đề gì khiến con gặp khó khăn không ạ? Rất mong phụ huynh hỗ trợ nhắc nhở và cùng tìm hiểu nguyên nhân để giúp con tiến bộ hơn.\`;
+                        const parentMsg = \`Chị ơi, em thấy điểm bài tập về nhà của em \${firstName} hơi thấp (\${(parseFloat(student.score) / parseFloat(student.totalQuestions) * 10).toFixed(1)}/10 điểm). Chị hỏi xem con có vấn đề gì khiến con gặp khó khăn không ạ? Rất mong phụ huynh hỗ trợ nhắc nhở và cùng tìm hiểu nguyên nhân để giúp con tiến bộ hơn.\`;
                         const studentMsg = \`Thầy thấy điểm BTVN của em hơi thấp nhỉ (\${(parseFloat(student.score) / parseFloat(student.totalQuestions) * 10).toFixed(1)}/10 điểm). Có khó khăn ở đâu không em? Nếu có bất kỳ câu nào chưa hiểu rõ, đừng ngần ngại nhắn tin hỏi thầy hoặc các anh chị trợ giảng nhé. Cố gắng lên em!\`;
                         resultHTML += \`
                         <div class="bg-gray-100 dark:bg-gray-900/50 rounded-lg p-4 mb-4">
@@ -1442,3 +1442,4 @@ Chỉ trả về đối tượng JSON với các trường: "generalComment", "h
 
 </body>
 </html>
+
